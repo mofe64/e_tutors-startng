@@ -5,6 +5,12 @@ const subjectSchema = mongoose.Schema({
     type: String,
     required: [true, 'Please enter subject name'],
   },
+  category: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Category',
+    },
+  ],
   tutors: [
     {
       type: mongoose.Schema.ObjectId,

@@ -39,19 +39,23 @@ exports.getSingleCategory = catchAsync(async (req, res, next) => {
 });
 
 exports.updateCategory = catchAsync(async (req, res, next) => {
-  const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const updatedCategory = await Category.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
-  if (!category) {
+  if (!updatedCategory) {
     return next(new AppError('No category found with that ID', 404));
   }
 
   res.status(200).json({
     status: 'sucess',
     data: {
-      category,
+      updatedCategory,
     },
   });
 });
