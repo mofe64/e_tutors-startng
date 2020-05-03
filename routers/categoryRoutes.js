@@ -4,7 +4,7 @@ const categoryController = require('../controllers/categoryController');
 const router = express.Router();
 
 router.route('/').get(categoryController.getAllCategories);
-router.route('/createcategory').post(categoryController.createCategory);
+router.route('/newcategory').post(categoryController.createCategory);
 router
   .route('/:id')
   .get(categoryController.getSingleCategory)
