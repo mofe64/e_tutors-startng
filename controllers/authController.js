@@ -1,6 +1,7 @@
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
+const Student = require('../models/studentModel');
+const Tutor = require('../models/tutorModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
@@ -33,23 +34,28 @@ const createSendToken = (user, statuscode, res) => {
   });
 };
 
-exports.signup = catchAsync(async (req, res, next) => {
-  //prevent people from signing up as admin by setting the admin value back to the default of student
-  let userRole;
-  if (req.body.role === 'admin') {
-    userRole = 'student';
-  } else {
-    userRole = req.body.role;
-  }
-  const newUser = await User.create({
-    fullname: req.body.fullname,
+exports.studentSignup = catchAsync(async (req, res, next) => {
+  const newStudent = await Student.create({
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
     email: req.body.email,
     password: req.body.password,
     passwordconfirm: req.body.passwordconfirm,
-    role: userRole,
   });
   //hasing of password is done using a pre-save middleware in userModel
-  createSendToken(newUser, 201, res);
+  createSendToken(newStudent, 201, res);
+});
+
+exports.tutorSignup = catchAsync(async (req, res, next) => {
+  const newTutor = await Tutor.create({
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
+    email: req.body.email,
+    password: req.body.password,
+    passwordconfirm: req.body.passwordconfirm,
+  });
+  //hasing of password is done using a pre-save middleware in userModel
+  createSendToken(newTutor, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -62,15 +68,29 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   //find user based on given email and password
-  const user = await User.findOne({ email }).select('+ password');
+  let user;
+  if ((await Student.findOne({ email }).select('+ password')) !== null) {
+    user = await Student.findOne({ email }).select('+ password');
 
-  //check if user exists and if the password given matches the password in db using an instance method (instnce method located in userModel)
-  if (!user || !(await user.checkPassword(password, user.password))) {
-    return next(new AppError('incorrect email or password', 401));
+    //check if user exists and if the password given matches the password in db using an instance method (instnce method located in userModel)
+    if (!user || !(await user.checkPassword(password, user.password))) {
+      return next(new AppError('incorrect email or password', 401));
+    }
+
+    //create and sent token
+    //console.log(user);
+    createSendToken(user, 200, res);
+  } else {
+    user = await Tutor.findOne({ email }).select('+ password');
+
+    //check if user exists and if the password given matches the password in db using an instance method (instnce method located in tutorModel)
+    if (!user || !(await user.checkPassword(password, user.password))) {
+      return next(new AppError('incorrect email or password', 401));
+    }
+
+    //create and sent token
+    createSendToken(user, 200, res);
   }
-
-  //create and sent token
-  createSendToken(user, 200, res);
 });
 
 exports.authenticate = catchAsync(async (req, res, next) => {
