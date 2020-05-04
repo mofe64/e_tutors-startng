@@ -12,6 +12,9 @@ router
   .patch(subjectController.updateSubject)
   .delete(subjectController.deleteSubject);
 
+router
+  .route('/:id/addtutor/:tutorid')
+  .patch(subjectController.registerForSubject);
 //router.route('/:categoryid/subject').post(subjectController.createSubject);
 
 module.exports = router;
