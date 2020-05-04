@@ -18,13 +18,13 @@ const subjectSchema = mongoose.Schema({
   ],
 });
 
-//subjectSchema.pre(/^find/, function (next) {
-//  this.populate({
-//    path: 'category',
-//    select: 'category',
-//  });
-//  next();
-//});
+subjectSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'tutors',
+    select: ' -_id -subjects -__v -role',
+  });
+  next();
+});
 
 const Subject = mongoose.model('Subject', subjectSchema);
 
