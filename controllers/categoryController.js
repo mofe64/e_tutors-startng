@@ -13,7 +13,10 @@ exports.createCategory = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllCategories = catchAsync(async (req, res, next) => {
-  const categories = await Category.find();
+  const categories = await Category.find().populate({
+    path: 'subjects',
+    select: '-_id -__v ',
+  });
   res.status(200).json({
     status: 'success',
     results: categories.length,
@@ -72,3 +75,7 @@ exports.deleteCategory = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+//exports.addSubject = catchAsync(async (req, res, next) => {
+//  const updatedCategory = await Category.findByIdAndUpdate(req.params.id);
+//});

@@ -2,10 +2,14 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema({
-  fullname: {
+const studentSchema = new mongoose.Schema({
+  firstname: {
     type: String,
-    required: [true, 'Please tell us your full name'],
+    required: [true, 'Please tell us your first name'],
+  },
+  lastname: {
+    type: String,
+    required: [true, 'Please tell us your last name'],
   },
   email: {
     type: String,
@@ -16,12 +20,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    required: [
-      true,
-      'please specify if you are registering as a studnet or tutor',
-    ],
-    enum: ['student', 'tutor', 'admin'],
-    //default: 'student',
+    default: 'student',
   },
   password: {
     type: String,
@@ -41,7 +40,7 @@ const userSchema = new mongoose.Schema({
 });
 
 //pre-save middleware to hash password
-userSchema.pre('save', async function (next) {
+studentSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordconfirm = undefined;
@@ -49,12 +48,12 @@ userSchema.pre('save', async function (next) {
 });
 
 //instance method to check given password against encrypted passwordin db when logging in
-userSchema.methods.checkPassword = async function (
+studentSchema.methods.checkPassword = async function (
   inputPassword,
   userPassword
 ) {
   return await bcrypt.compare(inputPassword, userPassword);
 };
 
-const User = mongoose.model('User', userSchema);
-module.exports = User;
+const Student = mongoose.model('Student', studentSchema);
+module.exports = Student;

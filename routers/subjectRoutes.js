@@ -1,7 +1,8 @@
 const express = require('express');
 const subjectController = require('../controllers/subjectController');
+const categoryController = require('../controllers/categoryController');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.route('/').get(subjectController.getSubjects);
 router.route('/newsubject').post(subjectController.createSubject);
@@ -10,5 +11,7 @@ router
   .get(subjectController.getSingleSubject)
   .patch(subjectController.updateSubject)
   .delete(subjectController.deleteSubject);
+
+//router.route('/:categoryid/subject').post(subjectController.createSubject);
 
 module.exports = router;
