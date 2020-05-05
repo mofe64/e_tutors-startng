@@ -37,8 +37,21 @@ const studentSchema = new mongoose.Schema({
       message: 'passwords are not the same',
     },
   },
+  lessons: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Lesson',
+    },
+  ],
 });
 
+studentSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'lessons',
+    select: ' -students -tutors -_id -__v',
+  });
+  next();
+});
 //pre-save middleware to hash password
 studentSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();

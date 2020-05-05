@@ -2,6 +2,7 @@ const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const Student = require('../models/studentModel');
 const Tutor = require('../models/tutorModel');
+const Admin = require('../models/adminModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
@@ -46,6 +47,17 @@ exports.studentSignup = catchAsync(async (req, res, next) => {
   createSendToken(newStudent, 201, res);
 });
 
+exports.adminSignup = catchAsync(async (req, res, next) => {
+  const newAdmin = await Admin.create({
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
+    email: req.body.email,
+    password: req.body.password,
+    passwordconfirm: req.body.passwordconfirm,
+  });
+  createSendToken(newAdmin, 201, res);
+});
+
 exports.tutorSignup = catchAsync(async (req, res, next) => {
   const newTutor = await Tutor.create({
     firstname: req.body.firstname,
@@ -80,7 +92,7 @@ exports.login = catchAsync(async (req, res, next) => {
     //create and sent token
     //console.log(user);
     createSendToken(user, 200, res);
-  } else {
+  } else if ((await Tutor.findOne({ email }).select('+ password')) !== null) {
     user = await Tutor.findOne({ email }).select('+ password');
 
     //check if user exists and if the password given matches the password in db using an instance method (instnce method located in tutorModel)
@@ -89,6 +101,15 @@ exports.login = catchAsync(async (req, res, next) => {
     }
 
     //create and sent token
+    createSendToken(user, 200, res);
+  } else {
+    user = await Admin.findOne({ email }).select('+ password');
+
+    //check if user exists and if the password given matches the password in db using an instance method (instnce method located in adminModel)
+    if (!user || !(await user.checkPassword(password, user.password))) {
+      return next(new AppError('incorrect email or password', 401));
+    }
+
     createSendToken(user, 200, res);
   }
 });
@@ -100,8 +121,6 @@ exports.authenticate = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
   }
   if (!token) {
     return next(
@@ -113,13 +132,22 @@ exports.authenticate = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
   //check is user on token still exists
-  const currentUser = await User.findById(decoded.id);
+  let currentUser;
+  if ((await Student.findById(decoded.id)) !== null) {
+    currentUser = await Student.findById(decoded.id);
+  } else if ((await Tutor.findById(decoded.id)) !== null) {
+    currentUser = await Tutor.findById(decoded.id);
+  } else {
+    currentUser = await Admin.findById(decoded.id);
+  }
+  //console.log(currentUser);
   if (!currentUser) {
     return next(new AppError('User on this token no longer exists', 401));
   }
 
   //grant access
   req.user = currentUser;
+  //console.log(req.user);
   next();
 });
 

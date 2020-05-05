@@ -1,15 +1,20 @@
 const express = require('express');
 const lessonController = require('../controllers/lessonController');
+const authController = require('../controllers/authController');
 
 const router = express.Router();
-
-router.route('/addlesson').post(lessonController.createLesson);
-router.route('/').get(lessonController.getAllLessons);
+router.use(authController.authenticate);
+router
+  .route('/addlesson')
+  .post(authController.restrictTo('admin'), lessonController.createLesson); //create lesson
+router
+  .route('/')
+  .get(authController.restrictTo('admin'), lessonController.getAllLessons); //get all lessons
 
 router
   .route('/:id')
-  .get(lessonController.getLesson)
-  .patch(lessonController.updateLesson)
-  .delete(lessonController.deleteLesson);
+  .get(authController.restrictTo('admin'), lessonController.getLesson) //get a lesson
+  .patch(authController.restrictTo('admin'), lessonController.updateLesson) //update lesson
+  .delete(authController.restrictTo('admin'), lessonController.deleteLesson); // delete lesson
 
 module.exports = router;

@@ -1,9 +1,10 @@
 const Student = require('../models/studentModel');
 const Tutor = require('../models/tutorModel');
+const Lesson = require('../models/lessonsModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
-exports.getUsers = catchAsync(async (req, res, next) => {
+exports.getStudents = catchAsync(async (req, res, next) => {
   const students = await Student.find();
   res.status(200).json({
     status: 'success',
@@ -15,7 +16,13 @@ exports.getUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllTutors = catchAsync(async (req, res, next) => {
-  const tutors = await Tutor.find();
+  const queryObj = { ...req.query };
+  const excludedFields = ['page', 'sort', 'limit', 'fields'];
+  excludedFields.forEach((el) => delete queryObj[el]);
+
+  let query = Tutor.find(queryObj).sort('firstname');
+
+  const tutors = await query;
   res.status(200).json({
     status: 'success',
     results: ` ${tutors.length} tutor(s) regsitered presently`,
@@ -61,5 +68,25 @@ exports.deactivateTutor = catchAsync(async (req, res, next) => {
   res.status(204).json({
     status: 'success',
     data: null,
+  });
+});
+
+exports.addLesson = catchAsync(async (req, res, next) => {
+  if (req.params.lessonid) req.body.lessons = req.params.lessonid;
+  const student = await Student.findByIdAndUpdate(
+    req.params.studentid,
+    { $push: { lessons: req.body.lessons } },
+    { new: true, runValidators: true }
+  );
+  const updatedLesson = await Lesson.findByIdAndUpdate(
+    req.params.lessonid,
+    { $push: { students: req.params.studentid } },
+    { new: true }
+  );
+  res.status(200).json({
+    status: 'sucess',
+    data: {
+      student,
+    },
   });
 });

@@ -1,6 +1,7 @@
 const Category = require('../models/categoryModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const Subject = require('../models/subjectModel');
 
 exports.createCategory = catchAsync(async (req, res, next) => {
   const newCategory = await Category.create(req.body);
@@ -13,10 +14,7 @@ exports.createCategory = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllCategories = catchAsync(async (req, res, next) => {
-  const categories = await Category.find().populate({
-    path: 'subjects',
-    select: '-_id -__v ',
-  });
+  const categories = await Category.find();
   res.status(200).json({
     status: 'success',
     results: categories.length,
@@ -64,7 +62,14 @@ exports.updateCategory = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteCategory = catchAsync(async (req, res, next) => {
-  const category = await Category.findByIdAndDelete(req.params.id);
+  let category;
+  category = await Category.findById(req.params.id);
+  const subjects = category.subjects;
+  console.log(subjects);
+  subjects.forEach(async (element) => {
+    await Subject.findByIdAndDelete(element);
+  });
+  await category.deleteOne();
 
   if (!category) {
     return next(new AppError('No Category with that ID', 404));

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
-const tutorSchema = new mongoose.Schema({
+const adminSchema = new mongoose.Schema({
   firstname: {
     type: String,
     required: [true, 'Please tell us your first name'],
@@ -20,14 +20,8 @@ const tutorSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    default: 'tutor',
+    default: 'admin',
   },
-  subjects: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Subject',
-    },
-  ],
   password: {
     type: String,
     required: [true, 'Kindly enter your password'],
@@ -45,16 +39,8 @@ const tutorSchema = new mongoose.Schema({
   },
 });
 
-tutorSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: 'subjects',
-    select: '-tutors -category -__v',
-  });
-  next();
-});
-
 //pre-save middleware to hash password
-tutorSchema.pre('save', async function (next) {
+adminSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordconfirm = undefined;
@@ -62,12 +48,12 @@ tutorSchema.pre('save', async function (next) {
 });
 
 //instance method to check given password against encrypted passwordin db when logging in
-tutorSchema.methods.checkPassword = async function (
+adminSchema.methods.checkPassword = async function (
   inputPassword,
   userPassword
 ) {
   return await bcrypt.compare(inputPassword, userPassword);
 };
 
-const Tutor = mongoose.model('Tutor', tutorSchema);
-module.exports = Tutor;
+const Admin = mongoose.model('Admin', adminSchema);
+module.exports = Admin;
