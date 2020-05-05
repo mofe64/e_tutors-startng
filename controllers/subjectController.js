@@ -2,10 +2,15 @@ const Subject = require('../models/subjectModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const Tutor = require('../models/tutorModel');
+const Category = require('../models/categoryModel');
 
 exports.createSubject = catchAsync(async (req, res, next) => {
   if (!req.body.category) req.body.category = req.params.categoryid;
+
   const newSubject = await Subject.create(req.body);
+  const category = await Category.findByIdAndUpdate(req.body.category, {
+    $push: { subjects: newSubject._id },
+  });
 
   res.status(201).json({
     status: 'sucess',
@@ -18,11 +23,19 @@ exports.createSubject = catchAsync(async (req, res, next) => {
 exports.getSubjects = catchAsync(async (req, res, next) => {
   let filter = {};
   //console.log(req.params.categoryid);
-  if (req.params.categoryid) filter = { category: req.params.categoryid };
-  const subjects = await Subject.find(filter).populate({
-    path: 'category',
-    select: '-_id -__v',
-  });
+  if (req.query) {
+    filter = req.query;
+  }
+  if (req.params.categoryid) {
+    filter = { category: req.params.categoryid };
+  }
+  //console.log(req.params.categoryid);
+  const subjects = await Subject.find(filter)
+    .populate({
+      path: 'category',
+      select: '-_id -__v',
+    })
+    .sort('subject');
 
   res.status(200).json({
     status: 'success',
@@ -51,9 +64,9 @@ exports.updateMySubjects = catchAsync(async (req, res, next) => {
   let filter = {};
   let updatedSubject;
   if (req.params.tutorid) filter = { tutors: req.params.tutorid };
-  //const test = await Subject.find(filter);
+  const test = await Subject.find(filter);
   //console.log(test);
-  if ((await Subject.find(filter).length) > 0) {
+  if (test.length > 0) {
     updatedSubject = await Subject.findByIdAndUpdate(
       req.params.subjectid,
       req.body,
@@ -84,6 +97,11 @@ exports.deleteMySubject = catchAsync(async (req, res, next) => {
   if (test.length > 0) {
     //console.log(test.length > 0);
     subject = await Subject.findByIdAndDelete(req.params.subjectid);
+    updatedTutor = await Tutor.findByIdAndUpdate(
+      req.params.tutorid,
+      { $pull: { subjects: req.params.subjectid } },
+      { new: true }
+    );
     res.status(204).json({
       status: 'success',
       data: null,
@@ -140,7 +158,7 @@ exports.registerForSubject = catchAsync(async (req, res, next) => {
   if (req.params.id) req.body.subjects = req.params.id;
   const registeredSubject = await Subject.findByIdAndUpdate(
     req.params.id,
-    { tutors: req.body.tutors },
+    { $push: { tutors: req.body.tutors } },
     {
       new: true,
       runValidators: true,
@@ -151,7 +169,7 @@ exports.registerForSubject = catchAsync(async (req, res, next) => {
   }
   const updatedTutor = await Tutor.findByIdAndUpdate(
     req.params.tutorid,
-    { subjects: req.body.subjects },
+    { $push: { subjects: req.body.subjects } },
     {
       new: true,
       runValidators: true,
@@ -172,7 +190,12 @@ exports.deleteSubject = catchAsync(async (req, res, next) => {
   let filter = req.params.id;
   if (req.params.subjectid) filter = { _id: req.params.subjectid };
   const subject = await Subject.findByIdAndDelete(filter);
-
+  if (req.params.categoryid) {
+    const updatedCatgeory = await Category.findByIdAndUpdate(
+      req.params.categoryid,
+      { $pull: { subjects: req.params.subjectid } }
+    );
+  }
   if (!subject) {
     return next(new AppError('No Subject found with that ID', 404));
   }

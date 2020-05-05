@@ -11,6 +11,12 @@ const lessonSchema = new mongoose.Schema({
       ref: 'Tutor',
     },
   ],
+  students: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Tutor',
+    },
+  ],
   lessonname: {
     type: String,
     require: [true, 'Please enter the lesson name'],
@@ -20,7 +26,7 @@ const lessonSchema = new mongoose.Schema({
 lessonSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'subject',
-    select: 'subject -_id',
+    select: ' -_id -tutors -category -__v',
   });
   next();
 });
@@ -28,7 +34,7 @@ lessonSchema.pre(/^find/, function (next) {
 lessonSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'tutors',
-    select: 'firstname lastname -_id',
+    select: ' -_id -subjects -role -email -__v -id',
   });
   next();
 });
