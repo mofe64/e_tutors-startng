@@ -15,6 +15,7 @@ exports.createCategory = catchAsync(async (req, res, next) => {
 
 exports.getAllCategories = catchAsync(async (req, res, next) => {
   const categories = await Category.find();
+  //console.log(categories);
   res.status(200).json({
     status: 'success',
     results: categories.length,

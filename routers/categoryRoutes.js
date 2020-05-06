@@ -7,7 +7,7 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router.use(authController.authenticate);
-router.route('/').get(categoryController.getAllCategories);
+router.route('/all').get(categoryController.getAllCategories);
 router
   .route('/newcategory')
   .post(authController.restrictTo('admin'), categoryController.createCategory);
