@@ -21,7 +21,7 @@ const subjectSchema = mongoose.Schema({
 subjectSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'tutors',
-    select: ' -_id -subjects -__v -role',
+    select: ' -subjects -__v -role',
   });
   next();
 });
