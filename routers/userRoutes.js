@@ -20,7 +20,7 @@ router.get(
 //for admins
 router
   .route('/tutors/:id')
-  .get(authController.restrictTo('admin'), userController.getTutor) // get a tutor
+  .get(authController.restrictTo('admin', 'student'), userController.getTutor) // get a tutor
   .patch(authController.restrictTo('admin'), userController.updateTutor) //update a tutor
   .delete(authController.restrictTo('admin'), userController.deactivateTutor); //delete(deactivate) a tutor
 
