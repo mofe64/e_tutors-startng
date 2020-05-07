@@ -21,7 +21,7 @@ when signing-up the following fields must be provided:
 2. lastname : testlastname
 3. email : test@example.io
 4. password : test1234
-5. passwordconfirm : test12345
+5. passwordconfirm : test1234
 
 upon signing up a jwt token is issued and sent along in the response. This token must be prefixed with Bearer and sent alongside every request in an Authorization header eg
 if token : 12356789abc

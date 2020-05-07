@@ -44,6 +44,23 @@ exports.getTutor = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.MakeTutorAdmin = catchAsync(async (req, res, next) => {
+  const newAdmin = await Tutor.findByIdAndUpdate(
+    req.params.tutorId,
+    { role: 'admin' },
+    { new: true }
+  );
+  if (!newAdmin) {
+    return next(new AppError('no tutor found with that id', 404));
+  }
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tutor: newAdmin,
+    },
+  });
+});
+
 exports.updateTutor = catchAsync(async (req, res, next) => {
   const updatedTutor = await Tutor.findByIdAndUpdate(req.params.id, req.body, {
     new: true,

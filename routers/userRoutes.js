@@ -24,6 +24,10 @@ router
   .patch(authController.restrictTo('admin'), userController.updateTutor) //update a tutor
   .delete(authController.restrictTo('admin'), userController.deactivateTutor); //delete(deactivate) a tutor
 
+router
+  .route('/tutors/:tutorid/makeadmin')
+  .patch(authController.restrictTo('admin'), userController.MakeTutorAdmin);
+
 // for tutors
 router
   .route('/tutors/:tutorid/subjects')
