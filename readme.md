@@ -119,6 +119,12 @@ You can deactivate a tutor by making a delete request to :
 https://etutors-start.herokuapp.com/api/v1/user/tutors/<tutorId>
 the tutor id must be added to the URI as seen in the example above.
 
+MAKE A TUTOR AN ADMIN.
+You can give a tutor the role of admin by making a patch request to the following route:
+https://etutors-start.herokuapp.com/api/v1/user/tutors/<tutorId>/makeadmin
+The id os the tutor to be promoted must be present on the URI.
+This route is restricted to admins only
+
 LESSONS
 
 CREATE A LESSON (BOOK A LESSON)
