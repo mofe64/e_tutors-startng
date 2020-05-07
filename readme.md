@@ -1,7 +1,7 @@
 E-tutors Documentation.
 All Routes with the exception of the signup and login routes are protected and can only be accessed when logged in.
 
-https://etutors-start.herokuapp.com
+API LINK : https://etutors-start.herokuapp.com
 
 Admin Log-in details
 email:ogunbiyioladapo33@gmail.com
@@ -83,3 +83,63 @@ This route is restricted to admins only.
 GET A TUTOR
 You can get a specific tutor from the tutors collection, by making a Get Request to
 https://etutors-start.herokuapp.com/api/v1/user/tutors/<tutorId>
+This route is restricted to admins only
+
+DEACTIVATE A TUTOR
+You can deactivate a tutor by making a delete request to :
+https://etutors-start.herokuapp.com/api/v1/user/tutors/<tutorId>
+the tutor id must be added to the URI as seen in the example above.
+
+LESSONS
+
+CREATE A LESSON (BOOK A LESSON)
+You can create a lesson by making a Post request to : https://etutors-start.herokuapp.com/api/v1/lesson/addlesson
+the lessonname must be provided in the req.body
+you can also provide the Id's of the tutors who will be handling the lesson in the the tutors field, which accepts an array of Id's.
+you can also provide the Id of the subject to which the lesson belongs to in the subject field, which accepts an Id.
+It is also possible to provide the Id's of the student's which will belong to the course in the student's field which accepts an array of Id's
+This route is limited to admins only.
+
+Eg :
+"lessonname":"The Reproductive System",
+"tutors": ["5eb0837613f4e069a057ac02", "5eb0838413f4e069a057ac03"],
+"subject": "5eb081e113f4e069a057abfe",
+"students": []
+
+GET ALL LESSONS
+You can get all lessons in the Lessons collection by making a Get Request to: https://etutors-start.herokuapp.com/api/v1/lesson
+This route is limited to admins only.
+
+GET A LESSON.
+You can get a specific lesson from the lessons collection by manking a Get Request to:  
+https://etutors-start.herokuapp.com/api/v1/lesson<lessonId>
+The lessonId must be provided in the URI
+This route is limited to admins only.
+
+UPDATE A LESSON
+You can update a specific lesson by making Patch Request to
+https://etutors-start.herokuapp.com/api/v1/lesson<lessonId>
+The lessonId must be provided in the URI
+This route is limited to admins only.
+
+DELETE LESSON
+You can delete a lesson from the lessons category by making a Delete Request to
+https://etutors-start.herokuapp.com/api/v1/lesson<lessonId>
+The lessonId must be provided in the URI
+This route is limited to admins only.
+
+A Tutor Perform the following actions.
+
+Register TO TAKE A SUBJECT IN A CATEGORY
+A tutor can register to take a subject by making a Patch Request to :
+https://etutors-start.herokuapp.com/api/subject/<subjectId>/addtutor<tutorId>
+The subjectId must be present in the URI as well as the tutor Id as seen in the URI above
+This route is limited to Tutors only.
+
+GET ALL SUBJECTS A TUTOR HAS REGISTERED FOR
+A tutor can get all the subjects he has registered for by making a get request to :
+https://etutors-start.herokuapp.com/api/v1/user/tutors/<tutorId>/subjects
+This route is limited to tutors only.
+
+UPDATE A REGISTERED SUBJECT
+A tutor can update a subject he has registered for, by making
