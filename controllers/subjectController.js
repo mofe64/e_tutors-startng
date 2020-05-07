@@ -33,7 +33,7 @@ exports.getSubjects = catchAsync(async (req, res, next) => {
   const subjects = await Subject.find(filter)
     .populate({
       path: 'category',
-      select: '-_id -__v',
+      select: '-_id -__v -subjects',
     })
     .sort('subject');
 
@@ -83,8 +83,8 @@ exports.updateMySubjects = catchAsync(async (req, res, next) => {
     });
   } else {
     return next(
-      new AppError('This tutor is not registered for this subject', 403),
-      console.log(AppError)
+      new AppError('This tutor is not registered for this subject', 403)
+      //console.log(AppError)
     );
   }
 });
