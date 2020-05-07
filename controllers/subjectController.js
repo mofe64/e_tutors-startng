@@ -83,7 +83,7 @@ exports.updateMySubjects = catchAsync(async (req, res, next) => {
     });
   } else {
     return next(
-      new AppError('This Tutor is not registered for this subject', 403)
+      new AppError('This tutor is not registered for this subject', 403)
     );
   }
 });
