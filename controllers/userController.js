@@ -46,7 +46,7 @@ exports.getTutor = catchAsync(async (req, res, next) => {
 
 exports.MakeTutorAdmin = catchAsync(async (req, res, next) => {
   const newAdmin = await Tutor.findByIdAndUpdate(
-    req.params.tutorId,
+    req.params.tutorid,
     { role: 'admin' },
     { new: true }
   );
